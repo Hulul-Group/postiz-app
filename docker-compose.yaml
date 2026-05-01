@@ -59,6 +59,10 @@ services:
       STRIPE_SIGNING_KEY: ${STRIPE_SIGNING_KEY:-}
       STRIPE_SIGNING_KEY_CONNECT: ${STRIPE_SIGNING_KEY_CONNECT:-}
       NX_ADD_PLUGINS: false
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-}
     volumes:
       - postiz-config:/config/
       - postiz-uploads:/uploads/
@@ -75,18 +79,28 @@ services:
       postiz-redis:
         condition: service_healthy
     labels:
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-web.rule=Host(`team.hulul.info`)
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-web.entrypoints=web
+      - traefik.http.services.services-studio-postiz-sh7yhr-81-web.loadbalancer.server.port=5000
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-web.service=services-studio-postiz-sh7yhr-81-web
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-web.middlewares=redirect-to-https@file
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-websecure.rule=Host(`team.hulul.info`)
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-websecure.entrypoints=websecure
+      - traefik.http.services.services-studio-postiz-sh7yhr-81-websecure.loadbalancer.server.port=5000
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-websecure.service=services-studio-postiz-sh7yhr-81-websecure
+      - traefik.http.routers.services-studio-postiz-sh7yhr-81-websecure.tls.certresolver=letsencrypt
+      - traefik.enable=true
       - traefik.docker.network=dokploy-network
-      - traefik.http.routers.services-studio-postiz-sh7yhr-80-web.rule=Host(`services-studio-postiz-sh7yhr-b82f78-195-201-144-253.traefik.me`)
+      - traefik.http.routers.services-studio-postiz-sh7yhr-80-web.rule=Host(`team.hulul.info`)
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-web.entrypoints=web
-      - traefik.http.services.services-studio-postiz-sh7yhr-80-web.loadbalancer.server.port=5000
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-web.service=services-studio-postiz-sh7yhr-80-web
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-web.middlewares=redirect-to-https@file
-      - traefik.http.routers.services-studio-postiz-sh7yhr-80-websecure.rule=Host(`services-studio-postiz-sh7yhr-b82f78-195-201-144-253.traefik.me`)
+      - traefik.http.services.services-studio-postiz-sh7yhr-80-web.loadbalancer.server.port=5000
+      - traefik.http.routers.services-studio-postiz-sh7yhr-80-websecure.rule=Host(`team.hulul.info`)
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-websecure.entrypoints=websecure
-      - traefik.http.services.services-studio-postiz-sh7yhr-80-websecure.loadbalancer.server.port=5000
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-websecure.service=services-studio-postiz-sh7yhr-80-websecure
       - traefik.http.routers.services-studio-postiz-sh7yhr-80-websecure.tls.certresolver=letsencrypt
-      - traefik.enable=true
+      - traefik.http.services.services-studio-postiz-sh7yhr-80-websecure.loadbalancer.server.port=5000
   postiz-postgres:
     image: postgres:17-alpine
     container_name: postiz-postgres
